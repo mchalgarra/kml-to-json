@@ -117,8 +117,6 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
 
   const children: { [key: string]: string } = {}
 
-  console.log(name)
-
   const el = document.createElement(name)
   el.innerHTML = tagChildren
 
