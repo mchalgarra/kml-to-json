@@ -1,14 +1,19 @@
 {
   "name": "kml-to-json",
   "version": "1.0.0",
-  "description": "",
-  "author": "mchalgarra",
+  "description": "A library that contains methods to convert KML to JSON and JSON to KML.",
+  "author": {
+    "name": "Michell Algarra",
+    "email": "michell.algarra@gmail.com",
+    "url": "https://github.com/mchalgarra"
+  },
   "license": "MIT",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "start": "webpack --progress",
     "start:watch": "webpack --progress --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No test specified\""
   },
   "keywords": [
     "web",
@@ -36,7 +41,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://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@github.com/mchalgarra/kml-to-json.git"
+    "url": "git+https://github.com/mchalgarra/kml-to-json.git"
   },
   "bugs": {
     "url": "https://github.com/mchalgarra/kml-to-json/issues"
