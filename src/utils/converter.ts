@@ -106,22 +106,26 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
     return {}
   }
 
+  // Gets all tag openigs and the name of the first one
   const openings = tag.match(/<[a-zA-Z]+(>|.*?[^?]>)/gm) || []
   const name = (openings[0]?.split('>') || [])[0]
     ?.split(' ')[0]
     ?.replace(/[<|>]/g, '')
     .replace(/\r?\n|\r/g, '')
 
+  // Gets only the children of the current tag
   const tagEndOnly = tag.substr(tag.indexOf('>') + 1)
   const tagChildren = tagEndOnly.replace(new RegExp(`</${name}>`, 'g'), '')
 
   const children: { [key: string]: string } = {}
 
+  // Creates an element with the children
   const el = document.createElement(name)
   el.innerHTML = tagChildren
 
   let textNumber = 0
 
+  // Split the children and put them into the 'children' object
   el.childNodes.forEach((child: HTMLElement) => {
     if (child.nodeType === 3) {
       children['text' + textNumber++] = child.textContent
@@ -142,6 +146,8 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
 
   let current: Kml | IKmlTag = {}
 
+  // Creates the object that represents the current tag and gets
+  // its attributes
   if (isFirst) {
     current[name] = {
       attributes: getTagAttributes(openings[0]),
@@ -156,18 +162,17 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
     }
   }
 
+  // For each children, analyze its type and get its data
+  // recursively, until the last child
   Object.entries(children).forEach((c, index) => {
     const isText = c[0].match(/^text([\d]+)$/gm)
-
-    const text: ITextTag = {
-      order: index,
-      data: c[1],
-    }
 
     if (isFirst) {
       ;((current as Kml)[name] as IKmlTag).children = {
         ...((current as Kml)[name] as IKmlTag).children,
-        [c[0]]: isText ? text : (getTagData(c[1], index, false) as IKmlTag),
+        [c[0]]: isText
+          ? { order: index, data: c[1] }
+          : (getTagData(c[1], index, false) as IKmlTag),
       }
 
       return
@@ -175,7 +180,9 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
 
     current.children = {
       ...(current.children as Kml | IKmlTag),
-      [c[0]]: isText ? text : (getTagData(c[1], index, false) as IKmlTag),
+      [c[0]]: isText
+        ? { order: index, data: c[1] }
+        : (getTagData(c[1], index, false) as IKmlTag),
     }
   })
 
@@ -188,19 +195,21 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
  * @param text The KML text to be converted.
  * @returns An object containing all KML information.
  */
-export function convertToJson(text: string): string {
+export function convertToJson(text: string): Kml {
   const formattedText = text.replace(/^<\?(.*?)\?>$/gm, '')
   const textData = getTagData(formattedText) as Kml
 
-  return JSON.stringify(textData)
+  return textData
 }
 
 /**
  * Converts a JSON object to a KML text.
  *
- * @param json The JSON object to be converted.
+ * @param json The JSON object or string to be converted.
  * @returns A string that contains the formatted KML.
  */
 export function convertToKML(json: any): string {
+  const stringified = typeof json !== 'string' ? JSON.stringify(json) : json
+
   return ''
 }
