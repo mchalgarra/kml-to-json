@@ -1,4 +1,4 @@
-import { IKmlTag, ITextTag } from './../interfaces/kml.interface'
+import { IKmlTag, ITextTag } from '../interfaces/kml.interface'
 import { Attrs, Kml } from '../interfaces/kml.interface'
 
 /**
@@ -167,12 +167,19 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
   Object.entries(children).forEach((c, index) => {
     const isText = c[0].match(/^text([\d]+)$/gm)
 
+    let text: ITextTag
+
+    if (isText) {
+      text = {
+        order: index,
+        data: c[1],
+      }
+    }
+
     if (isFirst) {
       ;((current as Kml)[name] as IKmlTag).children = {
         ...((current as Kml)[name] as IKmlTag).children,
-        [c[0]]: isText
-          ? { order: index, data: c[1] }
-          : (getTagData(c[1], index, false) as IKmlTag),
+        [c[0]]: isText ? text : (getTagData(c[1], index, false) as IKmlTag),
       }
 
       return
@@ -180,9 +187,7 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
 
     current.children = {
       ...(current.children as Kml | IKmlTag),
-      [c[0]]: isText
-        ? { order: index, data: c[1] }
-        : (getTagData(c[1], index, false) as IKmlTag),
+      [c[0]]: isText ? text : (getTagData(c[1], index, false) as IKmlTag),
     }
   })
 
@@ -200,16 +205,4 @@ export function convertToJson(text: string): Kml {
   const textData = getTagData(formattedText) as Kml
 
   return textData
-}
-
-/**
- * Converts a JSON object to a KML text.
- *
- * @param json The JSON object or string to be converted.
- * @returns A string that contains the formatted KML.
- */
-export function convertToKML(json: any): string {
-  const stringified = typeof json !== 'string' ? JSON.stringify(json) : json
-
-  return ''
 }
