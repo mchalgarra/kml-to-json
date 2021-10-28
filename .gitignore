@@ -4,3 +4,6 @@
 
 # Environments
 .env
+
+# Files
+*.kml
