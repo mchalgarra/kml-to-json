@@ -1,5 +1,6 @@
 import { Kml } from './interfaces/kml.interface'
-import { convertToJson } from './utils/converter'
+import { convertToJson } from './utils/jsonConverter'
+import { convertToKML } from './utils/kmlConverter'
 import { readKML } from './utils/reader'
 
 /**
@@ -10,8 +11,7 @@ import { readKML } from './utils/reader'
  */
 export async function kmlToJson(file: File): Promise<Kml> {
   const kmlText = await readKML(file)
-  const json = convertToJson(kmlText)
-  return json
+  return convertToJson(kmlText)
 }
 
 /**
@@ -22,7 +22,28 @@ export async function kmlToJson(file: File): Promise<Kml> {
  */
 export async function kmlToJsonString(file: File): Promise<string> {
   const json = await kmlToJson(file)
-  return JSON.stringify(json)
+  return JSON.stringify(json, void 0, 2)
+}
+
+/**
+ * Converts a JSON object or string to a KML file.
+ *
+ * @param json The JSON object or string to be converted.
+ * @returns A blob that represents the KML file.
+ */
+export function jsonToKml(json: Kml | string): Blob {
+  const kml = convertToKML(json)
+  return new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' })
+}
+
+/**
+ * Converts a JSON object or string to a KML text.
+ *
+ * @param json The JSON object or string to be converted.
+ * @returns A string that represents the KML structure.
+ */
+export function jsonToKmlString(json: Kml | string): string {
+  return convertToKML(json)
 }
 
 setTimeout(() => {
@@ -35,10 +56,16 @@ setTimeout(() => {
 
         const json = await kmlToJsonString(file)
 
-        const div = document.createElement('div')
-        div.innerHTML = json
+        const pre = document.createElement('pre')
+        pre.innerHTML = json
 
-        document.body.appendChild(div)
+        document.body.appendChild(pre)
+
+        const a = document.createElement('a')
+        a.href = window.URL.createObjectURL(jsonToKml(json))
+        a.download = 'converted.kml'
+        a.click()
+        a.remove()
       }
     })
   }
