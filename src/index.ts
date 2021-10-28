@@ -22,7 +22,7 @@ export async function kmlToJson(file: File): Promise<Kml> {
  */
 export async function kmlToJsonString(file: File): Promise<string> {
   const json = await kmlToJson(file)
-  return JSON.stringify(json, void 0, 2)
+  return JSON.stringify(json)
 }
 
 /**
@@ -45,28 +45,3 @@ export function jsonToKml(json: Kml | string): Blob {
 export function jsonToKmlString(json: Kml | string): string {
   return convertToKML(json)
 }
-
-setTimeout(() => {
-  const input = document.getElementById('kml-input') as HTMLInputElement
-
-  if (input) {
-    input.addEventListener('change', async () => {
-      if (input.files && input.files[0]) {
-        const file = input.files[0]
-
-        const json = await kmlToJsonString(file)
-
-        const pre = document.createElement('pre')
-        pre.innerHTML = json
-
-        document.body.appendChild(pre)
-
-        const a = document.createElement('a')
-        a.href = window.URL.createObjectURL(jsonToKml(json))
-        a.download = 'converted.kml'
-        a.click()
-        a.remove()
-      }
-    })
-  }
-}, 100)
