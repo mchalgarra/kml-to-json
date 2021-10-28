@@ -11,7 +11,7 @@ export async function readKML(file: File): Promise<string> {
   }
 
   if (
-    file.type !== 'application/vnd.google-earth' &&
+    !file.type.includes('vnd.google-earth.kml') &&
     !file.name.match(/\.kml$/)
   ) {
     throw new Error('Invalid file type! The file must be a KML.')
