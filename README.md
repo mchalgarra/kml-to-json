@@ -99,17 +99,17 @@ jsonToKmlString(json: Object | string): string
                 "data": "Some text...",
                 "order": 0
               }
-            }
+            },
             "order": 0,
           }
         }
-      }
+      },
       "child2": {
         "attributes": {},
         "order": 1,
         "children": {}
       }
-    }
+    },
     "order": 0,
   }
 }
