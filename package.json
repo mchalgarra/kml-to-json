@@ -1,6 +1,6 @@
 {
   "name": "kml-to-json",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A library that contains methods to convert KML to JSON and JSON to KML.",
   "author": {
     "name": "Michell Algarra",
@@ -11,8 +11,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "start": "webpack --progress",
-    "start:watch": "webpack --progress --watch",
+    "prepare": "npm run build",
+    "build": "webpack --progress",
+    "build:watch": "webpack --progress --watch",
     "test": "echo \"No test specified\""
   },
   "keywords": [
