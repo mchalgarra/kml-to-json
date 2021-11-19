@@ -1,6 +1,6 @@
 {
   "name": "kml-to-json",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A library that contains methods to convert KML to JSON and JSON to KML.",
   "author": {
     "name": "Michell Algarra",
@@ -12,8 +12,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "prepare": "npm run build",
-    "build": "webpack --progress",
-    "build:watch": "webpack --progress --watch",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
     "test": "echo \"No test specified\""
   },
   "keywords": [
@@ -36,9 +36,7 @@
     "terser-webpack-plugin": "^5.2.4",
     "ts-loader": "^9.2.6",
     "typescript": "^4.4.4",
-    "utf-8-validate": "^5.0.7",
-    "webpack": "^5.60.0",
-    "webpack-cli": "^4.9.1"
+    "utf-8-validate": "^5.0.7"
   },
   "repository": {
     "type": "git",
