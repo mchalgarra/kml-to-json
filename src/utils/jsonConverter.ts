@@ -124,17 +124,34 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
   el.innerHTML = tagChildren
 
   let textNumber = 0
+  let breakForEach = false
 
   // Split the children and put them into the 'children' object
   el.childNodes.forEach((child: HTMLElement) => {
+    if (breakForEach) return
+
+    if (child.nodeType === 8) {
+      if (!(child.outerHTML || child.textContent).includes('CDATA')) {
+        return
+      }
+
+      children['text' + textNumber++] = tagChildren
+        .replace('<!--', '<!')
+        .replace('-->', '>')
+        .substr(tagChildren.startsWith('\\n') ? 2 : 0)
+        .trimStart()
+      breakForEach = true
+      return
+    }
+
     if (child.nodeType === 3) {
       children['text' + textNumber++] = child.textContent
       return
     }
 
     const childOpenings =
-      child.outerHTML.match(/<[a-zA-Z]+(>|.*?[^?]>)/gm) || []
-    const childName = (childOpenings[0]?.split('>') || [])[0]
+      child.outerHTML?.match(/<[a-zA-Z]+(>|.*?[^?]>)/gm) || []
+    const childName = (childOpenings[0]?.split('>') || [''])[0]
       ?.split(' ')[0]
       ?.replace(/[<|>]/g, '')
       .replace(/\r?\n|\r/g, '')
