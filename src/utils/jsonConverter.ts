@@ -11,7 +11,11 @@ function getTagAttributes(tag: string): Attrs {
   const attrs: Attrs = {}
 
   const parts = tag.split(' ')
-  const attributes = parts.slice(1).join(' ').replace('>', '')
+  const attributes = parts
+    .slice(1)
+    .join(' ')
+    .replace('>', '')
+    .replace(/\r?\n|\r/g, '')
 
   const keys = attributes
     .replace(/\"(.*?)\"/g, '')
@@ -107,15 +111,19 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
   }
 
   // Gets all tag openigs and the name of the first one
-  const openings = tag.match(/<[a-zA-Z]+(>|.*?[^?]>)/gm) || []
+  const openings = tag.match(/<[a-zA-Z]+(>|.*?[^?]>)/gs) || []
   const name = (openings[0]?.split('>') || [])[0]
     ?.split(' ')[0]
     ?.replace(/[<|>]/g, '')
     .replace(/\r?\n|\r/g, '')
+    .replace(/<style\s/gi, '<kml-style ')
 
   // Gets only the children of the current tag
-  const tagEndOnly = tag.substr(tag.indexOf('>') + 1)
-  const tagChildren = tagEndOnly.replace(new RegExp(`</${name}>`, 'g'), '')
+  const tagEndOnly = tag
+    .substr(tag.indexOf('>') + 1)
+    .replace(/<style\s/gi, '<kml-style ')
+    .replace(/<\/(\s*?)style>/gi, '</kml-style>')
+  const tagChildren = tagEndOnly.replace(new RegExp(`</${name}>`, 'i'), '')
 
   const children: { [key: string]: string } = {}
 
@@ -125,6 +133,7 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
 
   let textNumber = 0
   let breakForEach = false
+  const childrenRepeteAmount: { [key: string]: number } = {}
 
   // Split the children and put them into the 'children' object
   el.childNodes.forEach((child: HTMLElement) => {
@@ -138,8 +147,10 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
       children['text' + textNumber++] = tagChildren
         .replace('<!--', '<!')
         .replace('-->', '>')
+        .replace('&gt;', '>')
         .substr(tagChildren.startsWith('\\n') ? 2 : 0)
         .trimStart()
+
       breakForEach = true
       return
     }
@@ -155,6 +166,17 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
       ?.split(' ')[0]
       ?.replace(/[<|>]/g, '')
       .replace(/\r?\n|\r/g, '')
+
+    if (children[childName]) {
+      childrenRepeteAmount[childName] = childrenRepeteAmount[childName]
+        ? childrenRepeteAmount[childName]++
+        : 1
+
+      children[childName + '--' + childrenRepeteAmount[childName]] =
+        child.outerHTML
+
+      return
+    }
 
     children[childName] = child.outerHTML
   })
@@ -194,18 +216,16 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
     }
 
     if (isFirst) {
-      ;((current as Kml)[name] as IKmlTag).children = {
-        ...((current as Kml)[name] as IKmlTag).children,
-        [c[0]]: isText ? text : (getTagData(c[1], index, false) as IKmlTag),
-      }
+      ;((current as Kml)[name] as IKmlTag).children[c[0]] = isText
+        ? text
+        : (getTagData(c[1], index, false) as IKmlTag)
 
       return
     }
 
-    current.children = {
-      ...(current.children as Kml | IKmlTag),
-      [c[0]]: isText ? text : (getTagData(c[1], index, false) as IKmlTag),
-    }
+    ;(current.children as Kml)[c[0]] = isText
+      ? text
+      : (getTagData(c[1], index, false) as IKmlTag)
   })
 
   return current
