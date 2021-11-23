@@ -44,8 +44,16 @@ function getJsonData(kmlObject: Kml): string {
         value = tag[1] as IKmlTag
         const attributes = getAttributes(value.attributes)
 
-        const tagBeginning = `<${name}${attributes}>`
-        const tagEnding = `</${name}>`
+        const idIndex =
+          name.lastIndexOf('--') !== -1 ? name.lastIndexOf('--') : name.length
+
+        const tagBeginning = `<${name
+          .substr(0, idIndex)
+          .replace(/<kml-style\s/g, '<style ')}${attributes}>`
+
+        const tagEnding = `</${name
+          .substr(0, idIndex)
+          .replace(/<kml-style\s/g, '<style ')}>`
 
         current += tagBeginning
         current += getJsonData(value.children)
