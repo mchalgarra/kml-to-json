@@ -1,4 +1,4 @@
-import { Kml } from './interfaces/kml.interface'
+import { IKmlTag, ITextTag, Kml } from './interfaces/kml.interface'
 import { convertToJson } from './utils/jsonConverter'
 import { convertToKML } from './utils/kmlConverter'
 import { readKML } from './utils/reader'
@@ -44,4 +44,39 @@ export function jsonToKml(json: Kml | string): Blob {
  */
 export function jsonToKmlString(json: Kml | string): string {
   return convertToKML(json)
+}
+
+/**
+ * Filters all tags and their children to remove texts that only
+ * contains '\n' and spaces.
+ *
+ * @param json The JSON object or string to be cleaned.
+ * @returns An object containing only the filtered properties.
+ */
+export function clearJsonTexts(json: Kml | string): Kml {
+  const clearChildren = (kml: IKmlTag): void => {
+    const textRegex = /text([0-9]+)/g
+    const cleanRegex = /\s*\n\s*/gi
+
+    if (!kml.children) {
+      return
+    }
+
+    Object.entries(kml.children).forEach(([key, value]) => {
+      if (
+        textRegex.test(key) &&
+        (value as ITextTag).data.replace(cleanRegex, '').length === 0
+      ) {
+        delete kml.children[key]
+        return
+      }
+
+      clearChildren(value as IKmlTag)
+    })
+  }
+
+  const kmlObject: Kml = typeof json === 'string' ? JSON.parse(json) : json
+  clearChildren(Object.values(kmlObject)[0] as IKmlTag)
+
+  return kmlObject
 }
