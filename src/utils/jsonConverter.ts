@@ -129,7 +129,14 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
 
   // Creates an element with the children
   const el = document.createElement(name)
-  el.innerHTML = tagChildren
+
+  if (isFirst) {
+    el.innerHTML = tagChildren
+      .replace(/<!\[CDATA/g, '<!--<![CDATA')
+      .replace(/]]>/g, ']]>-->')
+  } else {
+    el.innerHTML = tagChildren
+  }
 
   let textNumber = 0
   let breakForEach = false
@@ -145,8 +152,8 @@ function getTagData(tag: string, order = 0, isFirst = true): Kml | IKmlTag {
       }
 
       children['text' + textNumber++] = tagChildren
-        .replace('<!--', '<!')
-        .replace('-->', '>')
+        .replace('<!--<!', '<!')
+        .replace(']]>-->', ']]>')
         .replace('&gt;', '>')
         .substr(tagChildren.startsWith('\\n') ? 2 : 0)
         .trimStart()
