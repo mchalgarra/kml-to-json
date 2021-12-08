@@ -1,6 +1,6 @@
 {
   "name": "kml-to-json",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A library that contains methods to convert KML to JSON and JSON to KML.",
   "author": {
     "name": "Michell Algarra",
