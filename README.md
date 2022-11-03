@@ -117,4 +117,4 @@ jsonToKmlString(json: Object | string): string
 
 ## License
 
-The AsteroidsJS project is licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The KmlToJson project is licensed under the [MIT license](https://opensource.org/licenses/MIT).
